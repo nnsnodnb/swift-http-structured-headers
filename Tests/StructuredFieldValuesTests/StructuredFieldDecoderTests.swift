@@ -19,6 +19,7 @@ import XCTest
 struct ListyDictionaryFieldParameters: Codable, Equatable {
     var q: Double?
     var fallback: String?
+    var link: URL?
 }
 
 struct ListyDictionaryParameterisedString: Codable, Equatable {
@@ -77,7 +78,7 @@ struct DictionaryField<Key: Codable & Hashable, Value: Codable & Equatable>: Str
 
 /// An example ListyDictionary structured header field.
 ///
-/// An example of this field is: 'primary=bar;q=1.0, secondary=baz;q=0.5;fallback=last, acceptablejurisdictions=(AU;q=1.0 GB;q=0.9 FR);fallback=primary'
+/// An example of this field is: 'primary=bar;q=1.0, secondary=baz;q=0.5;fallback=last, acceptablejurisdictions=(AU;q=1.0 GB;q=0.9 FR);fallback=primary;link=https://github.com/apple/swift-http-structured-headers'
 struct ListyDictionaryField: StructuredFieldValue, Equatable {
     static let structuredFieldType: StructuredFieldType = .dictionary
 
@@ -88,12 +89,12 @@ struct ListyDictionaryField: StructuredFieldValue, Equatable {
 
 final class StructuredFieldDecoderTests: XCTestCase {
     func testSimpleCodableDecode() throws {
-        let headerField = "primary=bar;q=1.0, secondary=baz;q=0.5;fallback=last, acceptablejurisdictions=(AU;q=1.0 GB;q=0.9 FR);fallback=\"primary\""
+        let headerField = "primary=bar;q=1.0, secondary=baz;q=0.5;fallback=last, acceptablejurisdictions=(AU;q=1.0 GB;q=0.9 FR);fallback=\"primary\";link=\"https://github.com/apple/swift-http-structured-headers\""
         let parsed = try StructuredFieldValueDecoder().decode(ListyDictionaryField.self, from: Array(headerField.utf8))
         let expected = ListyDictionaryField(
             primary: .init(item: "bar", parameters: .init(q: 1, fallback: nil)),
             secondary: .init(item: "baz", parameters: .init(q: 0.5, fallback: "last")),
-            acceptablejurisdictions: .init(items: [.init(item: "AU", parameters: .init(q: 1, fallback: nil)), .init(item: "GB", parameters: .init(q: 0.9, fallback: nil)), .init(item: "FR", parameters: .init(q: nil, fallback: nil))], parameters: .init(q: nil, fallback: "primary"))
+            acceptablejurisdictions: .init(items: [.init(item: "AU", parameters: .init(q: 1, fallback: nil)), .init(item: "GB", parameters: .init(q: 0.9, fallback: nil)), .init(item: "FR", parameters: .init(q: nil, fallback: nil))], parameters: .init(q: nil, fallback: "primary", link: URL(string: "https://github.com/apple/swift-http-structured-headers")))
         )
         XCTAssertEqual(parsed, expected)
     }

@@ -109,6 +109,14 @@ extension BareItemDecoder: SingleValueDecodingContainer {
         return decoded
     }
 
+    func decode(_: URL.Type) throws -> URL {
+        guard case let .string(string) = self.item,
+              let url = URL(string: string) else {
+            throw StructuredHeaderError.invalidTypeForItem
+        }
+        return url
+    }
+
     func decode(_: Decimal.Type) throws -> Decimal {
         guard case .decimal(let pseudoDecimal) = self.item else {
             throw StructuredHeaderError.invalidTypeForItem
@@ -156,6 +164,8 @@ extension BareItemDecoder: SingleValueDecodingContainer {
             return try self.decode(Bool.self) as! T
         case is Data.Type:
             return try self.decode(Data.self) as! T
+        case is URL.Type:
+            return try self.decode(URL.self) as! T
         case is Decimal.Type:
             return try self.decode(Decimal.self) as! T
         default:

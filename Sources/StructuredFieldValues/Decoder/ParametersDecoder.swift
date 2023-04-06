@@ -52,6 +52,9 @@ extension ParametersDecoder: KeyedDecodingContainerProtocol {
         if type is Data.Type {
             let container = try self.decoder.singleValueContainer()
             return try container.decode(Data.self) as! T
+        } else if type is URL.Type {
+            let container = try self.decoder.singleValueContainer()
+            return try container.decode(URL.self) as! T
         } else if type is Decimal.Type {
             let container = try self.decoder.singleValueContainer()
             return try container.decode(Decimal.self) as! T
